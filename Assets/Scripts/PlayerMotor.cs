@@ -14,9 +14,12 @@ public class PlayerMotor : MonoBehaviour
     public float crouchSpeed = 2.5f;
     public float sprintSpeed = 10f;
     public float gravity = -9.8f;
-    public float jumpHeight = 3f;
+    public float jumpHeight = 1f;
     public float standingHeight = 2f;
     public float crouchingHeight = 1f;
+    public float crouchTransitionDuration = 0.5f;
+
+    private Coroutine crouchCoroutine;
 
     // Start is called before the first frame update
     void Start()
@@ -64,13 +67,35 @@ public class PlayerMotor : MonoBehaviour
         }
     }
 
-    public void ToggleCrouch()
+    public void Crouch(bool crouching)
     {
-        isCrouching = !isCrouching;
-        controller.height = isCrouching ? crouchingHeight : standingHeight;
+        if (isCrouching != crouching)
+        {
+            isCrouching = crouching;
+
+            if (crouchCoroutine != null)
+                StopCoroutine(crouchCoroutine);
+
+            crouchCoroutine = StartCoroutine(AdjustHeight(crouching ? crouchingHeight : standingHeight));
+        }
     }
 
-    public void ToggleSprint(bool sprinting)
+    private IEnumerator AdjustHeight(float targetHeight)
+    {
+        float currentTime = 0;
+        float startHeight = controller.height;
+
+        while (currentTime < crouchTransitionDuration)
+        {
+            currentTime += Time.deltaTime;
+            controller.height = Mathf.Lerp(startHeight, targetHeight, currentTime / crouchTransitionDuration);
+            yield return null;
+        }
+
+        controller.height = targetHeight;
+    }
+
+    public void Sprint(bool sprinting)
     {
         isSprinting = sprinting;
     }
