@@ -7,10 +7,16 @@ public class PlayerMotor : MonoBehaviour
     private CharacterController controller;
     private Vector3 playerVelocity;
     private bool isGrounded;
-    
+    private bool isCrouching = false;
+    private bool isSprinting = false;
+
     public float motorSpeed = 5f;
+    public float crouchSpeed = 2.5f;
+    public float sprintSpeed = 10f;
     public float gravity = -9.8f;
     public float jumpHeight = 3f;
+    public float standingHeight = 2f;
+    public float crouchingHeight = 1f;
 
     // Start is called before the first frame update
     void Start()
@@ -29,7 +35,19 @@ public class PlayerMotor : MonoBehaviour
         Vector3 moveDirection = Vector3.zero;
         moveDirection.x = input.x; // forward
         moveDirection.z = input.y; // backward
-        controller.Move(transform.TransformDirection(moveDirection) * motorSpeed * Time.deltaTime);
+
+        // checks for crouching / sprinting
+        float currentSpeed = motorSpeed;
+        if (isSprinting)
+        {
+            currentSpeed = sprintSpeed;
+        }
+        else if (isCrouching)
+        {
+            currentSpeed = crouchSpeed;
+        }
+
+        controller.Move(transform.TransformDirection(moveDirection) * currentSpeed * Time.deltaTime);
         playerVelocity.y += gravity * Time.deltaTime;
         if (isGrounded && playerVelocity.y < 0) {
             playerVelocity.y = -2f;
@@ -44,5 +62,16 @@ public class PlayerMotor : MonoBehaviour
         {
             playerVelocity.y = Mathf.Sqrt(jumpHeight * -3.0f * gravity);
         }
+    }
+
+    public void ToggleCrouch()
+    {
+        isCrouching = !isCrouching;
+        controller.height = isCrouching ? crouchingHeight : standingHeight;
+    }
+
+    public void ToggleSprint(bool sprinting)
+    {
+        isSprinting = sprinting;
     }
 }

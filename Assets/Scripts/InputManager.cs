@@ -21,6 +21,9 @@ public class InputManager : MonoBehaviour
         look = GetComponent<PlayerLook>();
 
         onFoot.Jump.performed += ctx => motor.Jump();
+        onFoot.Crouch.performed += ctx => motor.ToggleCrouch();
+        onFoot.Sprint.started += ctx => motor.ToggleSprint(true);
+        onFoot.Sprint.canceled += ctx => motor.ToggleSprint(false);
     }
 
     // Update is called once per frame
