@@ -56,7 +56,6 @@ public class PlayerMotor : MonoBehaviour
             playerVelocity.y = -2f;
         }
         controller.Move(playerVelocity * Time.deltaTime);
-        Debug.Log(playerVelocity.y);
     }
 
     public void Jump()

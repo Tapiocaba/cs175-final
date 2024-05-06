@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Weapon : MonoBehaviour
 {
@@ -24,6 +25,11 @@ public class Weapon : MonoBehaviour
     public float bulletVelocity = 30;
     public float bulletPrefabLifetime = 3f; // destroys after 3 sec
 
+    // reloading
+    public float reloadTime;
+    public int magazineSize, bulletsLeft;
+    public bool isReloading;
+
     public enum ShootingMode
     {
         Single,
@@ -37,12 +43,27 @@ public class Weapon : MonoBehaviour
     {
         readyToShoot = true;
         burstBulletsLeft = bulletsPerBurst;
+        bulletsLeft = magazineSize;
     }
 
     // Update is called once per frame
     void Update()
     {
         CheckShooting();
+
+        // update ammo count
+        if (AmmoManager.Instance.ammoDisplay != null)
+        {
+            AmmoManager.Instance.ammoDisplay.text = $"{bulletsLeft / bulletsPerBurst} / {magazineSize / bulletsPerBurst}";
+        }
+    }
+
+    private void UpdateStatusMessage(string message)
+    {
+        if (AmmoManager.Instance.statusDisplay != null)
+        {
+            AmmoManager.Instance.statusDisplay.text = message;
+        }
     }
 
     private void CheckShooting()
@@ -58,29 +79,46 @@ public class Weapon : MonoBehaviour
             isShooting = Input.GetKeyDown(KeyCode.Mouse0);
         }
 
-        if (isShooting && readyToShoot)
+        if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && !isReloading)
+        {
+            Reload();
+            UpdateStatusMessage("Reloading...");
+        }
+
+        if (bulletsLeft <= 0 && !isReloading)
+        {
+            UpdateStatusMessage("Reload gun!");
+            return;
+        }
+
+        // Only allow shooting if there are bullets left, the weapon is ready to shoot, and not currently reloading.
+        if (isShooting && readyToShoot && !isReloading && bulletsLeft > 0)
         {
             burstBulletsLeft = bulletsPerBurst;
             FireWeapon();
         }
+
     }
 
     private void FireWeapon()
     {
+        Debug.Log("Firing Weapon"); // Debug statement
+        bulletsLeft--;
         readyToShoot = false;
 
         Vector3 shootingDirection = CalculateDirAndSpread().normalized;
+        Debug.Log($"Shooting Direction: {shootingDirection}"); // Debug direction
 
         // Instantiate the bullet at the bulletSpawn position with the camera's rotation
         GameObject bullet = Instantiate(bulletPrefab, bulletSpawn.position, playerCamera.transform.rotation);
 
-        // points bullet to shooting dir
+        // Set bullet direction - it's important this is correct
         bullet.transform.forward = shootingDirection;
 
-        // shoot
-        bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * bulletVelocity, ForceMode.Impulse);
+        // Apply force
+        Rigidbody bulletRigidbody = bullet.GetComponent<Rigidbody>();
+        bulletRigidbody.AddForce(shootingDirection * bulletVelocity, ForceMode.Impulse);
 
-        // destroy bullet
         StartCoroutine(DestroyBulletAfterTime(bullet, bulletPrefabLifetime));
 
         if (currentShootingMode == ShootingMode.Burst && burstBulletsLeft > 1)
@@ -96,6 +134,21 @@ public class Weapon : MonoBehaviour
                 allowReset = false;
             }
         }
+    }
+
+
+    private void Reload()
+    {
+        isReloading = true;
+        Invoke("ReloadCompleted", reloadTime);
+        UpdateStatusMessage("Reloading...");
+    }
+
+    private void ReloadCompleted()
+    {
+        bulletsLeft = magazineSize; // reload complete, now we have a full magazine
+        isReloading = false;
+        UpdateStatusMessage("");
     }
 
     public Vector3 CalculateDirAndSpread()
