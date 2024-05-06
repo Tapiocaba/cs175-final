@@ -24,6 +24,7 @@ public class Weapon : MonoBehaviour
     // bullets
     public float bulletVelocity = 30;
     public float bulletPrefabLifetime = 3f; // destroys after 3 sec
+    public GameObject muzzleEffect;
 
     // reloading
     public float reloadTime;
@@ -103,6 +104,14 @@ public class Weapon : MonoBehaviour
     private void FireWeapon()
     {
         Debug.Log("Firing Weapon"); // Debug statement
+        muzzleEffect.GetComponent<ParticleSystem>().Play();
+        if (SoundManager.Instance == null || SoundManager.Instance.gunSound == null)
+        {
+            Debug.LogError("sound error");
+            return;
+        }
+
+        SoundManager.Instance.gunSound.Play();
         bulletsLeft--;
         readyToShoot = false;
 
