@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -34,11 +32,10 @@ public class Enemy : MonoBehaviour
         if (shouldUpright)
         {
             transform.rotation = Quaternion.Lerp(transform.rotation, initialRotation, Time.deltaTime * uprightSpeed);
-
             if (Quaternion.Angle(transform.rotation, initialRotation) < 1.0f)
             {
-                transform.rotation = initialRotation; 
-                shouldUpright = false; 
+                transform.rotation = initialRotation;
+                shouldUpright = false;
             }
         }
     }
@@ -47,7 +44,17 @@ public class Enemy : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            collision.gameObject.GetComponent<PlayerHealth>().TakeDamage(20);  // Assuming the player has a method to take damage
+            print("collided with player");
+            PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(20);  // Example damage value
+            }
+            else
+            {
+                Debug.LogError("PlayerHealth component not found on player object!");
+            }
         }
     }
+
 }

@@ -7,6 +7,8 @@ public class ScoreManager : MonoBehaviour
 
     public TextMeshProUGUI scoreDisplay;
     public TextMeshProUGUI timeDisplay;
+    public TextMeshProUGUI playerHpDisplay;  // Display for player health
+
     private int score = 0;
     private float elapsedTime = 0;
     private bool isPlayerAlive = true;
@@ -46,8 +48,14 @@ public class ScoreManager : MonoBehaviour
         timeDisplay.text = string.Format("Time: {0:00}:{1:00}", minutes, seconds);
     }
 
+    public void UpdatePlayerHealthDisplay(float health)
+    {
+        playerHpDisplay.text = "HP: " + health.ToString();
+    }
+
     public void PlayerDied()
     {
         isPlayerAlive = false;
+        UpdatePlayerHealthDisplay(0); // Show 0 on death
     }
 }
