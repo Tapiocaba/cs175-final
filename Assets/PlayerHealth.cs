@@ -21,14 +21,26 @@ public class PlayerHealth : MonoBehaviour
 
     private void Die()
     {
-        ScoreManager.Instance.PlayerDied();
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.PlayerDied();
+        }
+
+        Debug.Log("player died");
+
+        Application.Quit();
+
+        // for unity editor
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 
     private void UpdateHealthDisplay()
     {
         if (ScoreManager.Instance != null)
         {
-            ScoreManager.Instance.UpdatePlayerHealthDisplay(health);  // Update specific to player health
+            ScoreManager.Instance.UpdatePlayerHealthDisplay(health);
         }
     }
 }

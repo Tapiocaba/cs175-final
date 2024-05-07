@@ -4,8 +4,8 @@ public class Enemy : MonoBehaviour
 {
     public float health = 100f;
     public float uprightSpeed = 1f;
-    public Transform playerTransform;  // Add this line
-    public float moveSpeed = 5f;  // Movement speed towards the player
+    public Transform playerTransform;
+    public float moveSpeed = 2f;
 
     private Quaternion initialRotation;
     private bool shouldUpright = false;
@@ -57,7 +57,7 @@ public class Enemy : MonoBehaviour
             PlayerHealth playerHealth = collision.gameObject.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(20);  // Example damage value
+                playerHealth.TakeDamage(20);
             }
             else
             {
