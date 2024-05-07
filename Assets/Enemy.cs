@@ -4,6 +4,9 @@ public class Enemy : MonoBehaviour
 {
     public float health = 100f;
     public float uprightSpeed = 1f;
+    public Transform playerTransform;  // Add this line
+    public float moveSpeed = 5f;  // Movement speed towards the player
+
     private Quaternion initialRotation;
     private bool shouldUpright = false;
 
@@ -38,6 +41,12 @@ public class Enemy : MonoBehaviour
                 shouldUpright = false;
             }
         }
+
+        // Movement towards the player
+        if (playerTransform != null)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, playerTransform.position, moveSpeed * Time.deltaTime);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -52,9 +61,8 @@ public class Enemy : MonoBehaviour
             }
             else
             {
-                Debug.LogError("PlayerHealth component not found on player object!");
+                Debug.LogError("PlayerHealth not found");
             }
         }
     }
-
 }
