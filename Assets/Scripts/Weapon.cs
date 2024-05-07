@@ -5,9 +5,29 @@ using TMPro;
 
 public class Weapon : MonoBehaviour
 {
+    [System.Serializable]
+    public struct GunProperties
+    {
+        public int magazineSize;
+        public float reloadTime;
+        public float shootingDelay;
+        public float bulletVelocity;
+        public float bulletPrefabLifetime;
+        public float spreadIntensity;
+        public int bulletsPerBurst;
+    }
+
     public GameObject bulletPrefab;
     public Transform bulletSpawn;
     public Camera playerCamera;
+
+    public GameObject singleShotGun;
+    public GameObject automaticGun;
+    public GameObject spreadGun;
+
+    public GunProperties singleShotProperties;
+    public GunProperties automaticProperties;
+    public GunProperties spreadProperties;
 
     // shooting
     public bool isShooting, readyToShoot;
@@ -42,20 +62,111 @@ public class Weapon : MonoBehaviour
 
     private void Awake()
     {
+        // define gun properties
+        singleShotProperties = new GunProperties
+        {
+            magazineSize = 10,
+            reloadTime = 1.5f,
+            shootingDelay = 0.75f,
+            bulletVelocity = 50,
+            bulletPrefabLifetime = 3,
+            spreadIntensity = 0.05f,
+            bulletsPerBurst = 1
+        };
+
+        automaticProperties = new GunProperties
+        {
+            magazineSize = 30,
+            reloadTime = 2.0f,
+            shootingDelay = 0.1f,
+            bulletVelocity = 45,
+            bulletPrefabLifetime = 3,
+            spreadIntensity = 0.1f,
+            bulletsPerBurst = 1
+        };
+
+        spreadProperties = new GunProperties
+        {
+            magazineSize = 5,
+            reloadTime = 2.5f,
+            shootingDelay = 1.0f,
+            bulletVelocity = 40,
+            bulletPrefabLifetime = 3,
+            spreadIntensity = 0.5f,
+            bulletsPerBurst = 5
+        };
+
         readyToShoot = true;
         burstBulletsLeft = bulletsPerBurst;
         bulletsLeft = magazineSize;
+        ActivateGun(singleShotGun, singleShotProperties);
+        currentShootingMode = ShootingMode.Single;
     }
 
     // Update is called once per frame
     void Update()
     {
         CheckShooting();
+        CheckWeaponSwitch();
 
         // update ammo count
         if (AmmoManager.Instance.ammoDisplay != null)
         {
             AmmoManager.Instance.ammoDisplay.text = $"{bulletsLeft / bulletsPerBurst} / {magazineSize / bulletsPerBurst}";
+        }
+    }
+
+    private void CheckWeaponSwitch()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1)) // single shot
+        {
+            ActivateGun(singleShotGun, singleShotProperties);
+            currentShootingMode = ShootingMode.Single;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2)) // auto
+        {
+            ActivateGun(automaticGun, automaticProperties);
+            currentShootingMode = ShootingMode.Auto;
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3)) // spread
+        {
+            ActivateGun(spreadGun, spreadProperties);
+            currentShootingMode = ShootingMode.Burst;
+        }
+    }
+
+
+    private void ActivateGun(GameObject gunToActivate, GunProperties properties)
+    {
+        // Deactivate all guns
+        singleShotGun.SetActive(false);
+        automaticGun.SetActive(false);
+        spreadGun.SetActive(false);
+
+        // Activate the selected gun
+        gunToActivate.SetActive(true);
+
+        // Set the weapon properties
+        magazineSize = properties.magazineSize;
+        reloadTime = properties.reloadTime;
+        shootingDelay = properties.shootingDelay;
+        bulletVelocity = properties.bulletVelocity;
+        bulletPrefabLifetime = properties.bulletPrefabLifetime;
+        spreadIntensity = properties.spreadIntensity;
+        bulletsPerBurst = properties.bulletsPerBurst;
+
+        // Initialize ammo to full magazine
+        bulletsLeft = properties.magazineSize;
+
+        // Update UI for ammo, if needed
+        UpdateAmmoDisplay();
+    }
+
+    private void UpdateAmmoDisplay()
+    {
+        if (AmmoManager.Instance.ammoDisplay != null)
+        {
+            AmmoManager.Instance.ammoDisplay.text = $"{bulletsLeft} / {magazineSize}";
         }
     }
 
