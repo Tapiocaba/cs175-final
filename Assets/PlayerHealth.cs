@@ -3,10 +3,16 @@ using UnityEngine;
 public class PlayerHealth : MonoBehaviour
 {
     public float health = 100f;
+    public float fatalFallY = -15f;
 
     private void Start()
     {
         UpdateHealthDisplay();
+    }
+
+    private void Update()
+    {
+        CheckForFatalFall();
     }
 
     public void TakeDamage(float damage)
@@ -41,6 +47,15 @@ public class PlayerHealth : MonoBehaviour
         if (ScoreManager.Instance != null)
         {
             ScoreManager.Instance.UpdatePlayerHealthDisplay(health);
+        }
+    }
+
+    private void CheckForFatalFall()
+    {
+        if (transform.position.y < fatalFallY)
+        {
+            Debug.Log("Fell off");
+            Die();
         }
     }
 }

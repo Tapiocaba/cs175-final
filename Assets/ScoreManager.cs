@@ -28,6 +28,11 @@ public class ScoreManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            QuitGame();
+        }
+
         if (isPlayerAlive)
         {
             elapsedTime += Time.deltaTime;
@@ -35,17 +40,20 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    public void AddScore(int amount)
-    {
-        score += amount;
-        scoreDisplay.text = "Score: " + score;
-    }
-
     private void UpdateTimeDisplay()
     {
         int minutes = (int)elapsedTime / 60;
         int seconds = (int)elapsedTime % 60;
         timeDisplay.text = string.Format("Time: {0:00}:{1:00}", minutes, seconds);
+    }
+
+    private void QuitGame()
+    {
+        Debug.Log("Quitting game");
+        Application.Quit();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 
     public void UpdatePlayerHealthDisplay(float health)
@@ -57,5 +65,11 @@ public class ScoreManager : MonoBehaviour
     {
         isPlayerAlive = false;
         UpdatePlayerHealthDisplay(0); // Show 0 on death
+    }
+
+    public void AddScore(int amount)
+    {
+        score += amount;
+        scoreDisplay.text = "Score: " + score;
     }
 }
