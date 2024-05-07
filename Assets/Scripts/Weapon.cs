@@ -231,6 +231,20 @@ public class Weapon : MonoBehaviour
 
         // Instantiate the bullet at the bulletSpawn position with the camera's rotation
         GameObject bullet = Instantiate(bulletPrefab, bulletSpawn.position, playerCamera.transform.rotation);
+        Bullet bulletComponent = bullet.GetComponent<Bullet>();
+
+        switch (currentShootingMode)
+        {
+            case ShootingMode.Single:
+                bulletComponent.damage = 10f;  // Adjust these values as needed
+                break;
+            case ShootingMode.Auto:
+                bulletComponent.damage = 5f;
+                break;
+            case ShootingMode.Burst:
+                bulletComponent.damage = 7f;
+                break;
+        }
 
         // Set bullet direction - it's important this is correct
         bullet.transform.forward = shootingDirection;
